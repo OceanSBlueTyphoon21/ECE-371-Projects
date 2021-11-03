@@ -11,7 +11,7 @@
 
 .text 
 .global _start
-_start
+_start:
   MOV R0, #0x59       @ Copy the PackedBCD value 59 into R0
   MOV R1, R0          @ Copy the PackedBCD value from R1 into R0
   AND R0, R0, #0xF0   @ Mask R0 with 0xF0 = 1111 0000, this gets the Most Significant Nibble (5 = 0101)
