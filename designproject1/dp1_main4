@@ -1,0 +1,71 @@
+@ Design Project 1: Arrays & Procedures
+@ Description: This program computes the rounded average of a 16-element temperature
+@			   array and store this rounded average in memory. In addition, this program
+@			   uses a procedure to determine the maximum and minimum temperature values
+@			   of the day (from the 16-element array), the values are stored in memory.
+@ Registers Used: R0 - R8
+@ Anthony Bruno, November 2021
+
+.text
+.global _start:
+_start:
+.equ NUM, 16
+
+			MOV R4, #NUM
+			LDR R0, =TEMPDATA
+			LDR R1, =AVERAGE
+			LDR R2, =MINVAL
+			LDR R3, =MAXVAL
+			MOV R5, #0x00
+SUM:	LDRB R5, [R0], #1
+			ADD R5, R5, R6
+			SUBS R4, R4, #1
+			BNE SUM
+			MOVS R5, R5, LSR #4
+			ADC R5, R5, #0x00
+			STRB R5, [R1]
+			NOP
+			
+			MOV R4, #NUM
+			BL MAXMIN
+			NOP
+			STRB R4, [R3]
+			STRB R5, [R2]
+			NOP
+			
+MAXMIN: STMFD R13!,{R6-R8,R14}
+				LDRB R6, [R0]
+				LDRB R7, [R0]
+NEXT:		LDRB R8, [R0]
+				CMP R8, R6
+				BHI MAXUP
+				CMP R8, R7
+				BLS MINUP
+				Bl FINISH
+				
+MAXUP:	MOV R6, R8
+				BL FINISH
+				
+MINUP:	MOV R7, R8
+				BL FINISH
+
+FINISH:	SUBS R4, R4, #1
+				BNE NEXT
+				MOV R4, R6
+				MOV R5, R7
+				NOP
+				LDMFD R13!{R6-R8,R14}
+				MOV PC, R14
+
+
+
+.data
+TEMPDATA:	.byte 0x30, 0x30, 0x2F, 0x2F, 0x2E, 0x2E, 0x2E, 0x2E, 0x2D, 0x2D, 0x2D, 0x2D, 0x2C, 0x2A, 0x2A
+STACK:	.rept 256
+				.byte 0x00
+				.endr
+				
+AVERAGE:	.byte 0x00
+MINVAL:		.byte 0x00
+MAXVAL:		.byte 0x00
+.end
