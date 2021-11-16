@@ -11,6 +11,8 @@
 _start:
 .equ NUM, 16
 
+			LDR R13, =STACK
+			ADD R13, R13, #0x100
 			MOV R4, #NUM
 			LDR R0, =TEMPDATA
 			LDR R1, =AVERAGE
