@@ -11,8 +11,7 @@
 _start:
 .equ	NUM, 16
 .equ	NUM2, 15
-	LDR R13, =STACK					@ set pointer to STACK
-	ADD R13, R13, 0x100				@ Set the stack pointer to top of STACK
+
 	MOV R4, #NUM					@ Initialize the Counter
 	LDR R0, =TEMPDATA				@ Load pointer to TEMPDATA
 	LDR R1, =AVERAGE				@ Load pointer to AVERAGE
@@ -72,7 +71,5 @@ TEMPDATA:	.byte 0x31, 0x30, 0x30, 0x2F, 0x2F, 0x2E, 0x2E, 0x2E, 0x2E, 0x2D, 0x2D
 AVERAGE:	.byte 0x00
 MINVAL:		.byte 0x00
 MAXVAL:		.byte 0x00
-STACK:		.rept 256
-		.byte 0x00
-		.endr
+
 .end
