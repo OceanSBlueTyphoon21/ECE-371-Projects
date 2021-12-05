@@ -91,7 +91,7 @@ BUTTON_SVC: NOP					@ For debugging and testing
 	STR R1, [R0]				@ Write value to GPIO1_SETDATAOUT
 
 	@ Delay loop
-	LDR R5, =0x0020000F			@ ~ 1 second for delay loop
+	LDR R5, =0x002FFFFF			@ ~ 1 second for delay loop
 DELAY:	NOP
 		SUBS R5, R5, #1
 		BNE DELAY
