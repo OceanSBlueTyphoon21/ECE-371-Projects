@@ -50,27 +50,27 @@ _start:
 	STR R2, [R1,#0x10]				@ write reset to INTC Config register
 	MOV R2, #0x04				@ Value to unmask INTC INT# 98 (GPIO1_29)
 	STR R2, [R1,#0xE8]			@ write value to INTC_MIR_CLEAR3 register
-	MOV R2, #0x10				@ value to unmask INTC INT #68 (Timer2)
+	MOV R2, #0x10000000			@ value to unmask INTC INT #92 (Timer4)
 	STR R2, [R1,#0xC8]			@ Write value to INTC_MIR_CLEAR2 register
 
 @ Turn on Timer2 Clock
-	MOV R2, #0x02				@ Value to turn on DMTimer2 clock
-	LDR R1, =0x44E00080			@ CM_PER_TIMER2_CLKCTRL address
-	STR R2, [R1]				@ write turn on value to Timer2 clock control register
+	MOV R2, #0x02				@ Value to turn on DMTimer4 clock
+	LDR R1, =0x44E00088			@ CM_PER_TIMER4_CLKCTRL address
+	STR R2, [R1]				@ write turn on value to Timer4 clock control register
 
 @ Set the Timer2 Clock to the 32.768 KHz clock
-	LDR R1, =0x44E00508			@ PRCMCLKSEL_TIMER2 register address
+	LDR R1, =0x44E00510			@ PRCMCLKSEL_TIMER4 register address
 	STR R2, [R1]				@ write value to select 32.768 KHz clock
 
 @ Initialize DMTimer2 (CFG register for reset, (re)-Load register, counter register)
-	LDR R1, =0x48040000			@ base address for DMTimer2
-	MOV R2, #0x01				@ reset value for timer2
-	STR R2, [R1,#0x10]			@ write reset value to Timer2 CFG register
+	LDR R1, =0x48044000			@ base address for DMTimer4
+	MOV R2, #0x01				@ reset value for timer4
+	STR R2, [R1,#0x10]			@ write reset value to Timer4 CFG register
 	MOV R2, #0x02				@ value to enable overflow interrupt
-	STR R2, [R1,#0x2C]			@ write value to timer2 IRQENABLE_SET
+	STR R2, [R1,#0x2C]			@ write value to timer4 IRQENABLE_SET
 	LDR R2, =0xFFFF8000			@ count value for 1 second
-	STR R2, [R1,#0x40]			@ Write count value to Timer2 TLDR register (reloading)
-	STR R2, [R1,#0x3C]			@ write count value to Timer2 TCRR register (count up)
+	STR R2, [R1,#0x40]			@ Write count value to Timer4 TLDR register (reloading)
+	STR R2, [R1,#0x3C]			@ write count value to Timer4 TCRR register (count up)
 
 @ Enable the IRQ bit in CPSR for processor
 	MRS R3, CPSR				@ Copy CPSR to R2
@@ -87,7 +87,7 @@ INT_DIRECTOR: NOP				@ For debugging and testing
 	LDR R1, =0x482000F8			@ Address of INTC_PENDING_IRQ3 register
 	LDR R2, [R1]				@ Read INTC_PENDING_IRQ3 register
 	TST R2, #0x00000004			@ Test bit 2 in the read word
-	BEQ	TIMERCHK				@ IF the result is 0, then branch to TIMERCHK (Timer2)
+	BEQ	TIMERCHK				@ IF the result is 0, then branch to TIMERCHK (Timer4)
 	LDR R1, =0x4804C02C			@ ELSE, GPIO1_IRQSTATUS_0 register address
 	LDR R2, [R1]				@ read the STATUS register to see the button was pushed
 	TST R2, #0x20000000			@ Check if Bit 29 = 1
@@ -103,9 +103,9 @@ TIMERCHK:
 	NOP							@ For debugging and testing
 	LDR R1, =0x482000D8			@ address for INTC_PENDING_IRQ2 register
 	LDR R2, [R1]				@ read value from INTC_PENDING_IRQ2
-	TST R2, #0x10				@ Check if interrupt from DMTimer2
+	TST R2, #0x10000000			@ Check if interrupt from DMTimer4
 	BEQ PASS_THRU				@ IF result is 0 (not Timer2), return to WAIT LOOP
-	LDR R1, =0x48040028			@ ELSE, check for overflow --> Address of TIMER2_IRQSTATUS register
+	LDR R1, =0x48044028			@ ELSE, check for overflow --> Address of TIMER4_IRQSTATUS register
 	LDR R2, [R1]				@ read value from TIMER2_IRQSTATUS register
 	TST R2, #0x2				@ Check bit 1 for overflow interrupt generation
 	BNE LED						@ If overlow, branch to LED (toggling)
@@ -130,10 +130,10 @@ BUTTON_SVC:
 	ADD R1, R0, #0x190			@ GPIO1_CLEARDATAOUT address
 	STR R2, [R1]				@ Turn off LED0
 	MOV R2, #0x02				@ value to stop the TIMER2
-	LDR R1, =0x48040038			@ Address of Timer2 TCLR register
+	LDR R1, =0x48044038			@ Address of Timer4 TCLR register
 	STR R2, [R1]				@ Write value to stop Timer2
 	LDR R2, =0xFFFF8000			@ value for 1 second, re-initalize the count register (TCRR register)
-	LDR R1, =0x4804003C			@ Timer2 TCRR (count up) register address
+	LDR R1, =0x4804403C			@ Timer4 TCRR (count up) register address
 	STR R2, [R1]				@ Re-initializes the count up to 1 second
 
 	MOV R4, #0x00				@ Value to reset the button_status
@@ -152,8 +152,8 @@ LEDON:
 	ADD R1, R0, #0x194			@ GPIO1_SETDATAOUT register address
 	STR R2, [R1]				@ write value to turn on LED0
 	MOV R2, #0x03				@ value to auto-reload timer2 and start Timer2
-	LDR R1, =0x48040038			@ Timer2 TCLR register address
-	STR R2, [R1]				@ write value to Timer2 TCLR register
+	LDR R1, =0x48044038			@ Timer4 TCLR register address
+	STR R2, [R1]				@ write value to Timer4 TCLR register
 
 	MOV R4, #0x01				@ value to set the button_status
 	STRB R4, [R3]				@ write set value to button_status
@@ -163,9 +163,9 @@ LEDON:
 LED:
 	NOP							@ For debugging and testing
 @ Turn off Timer2 interrupt request
-	LDR R1, =0x48040028			@ Timer2 IRQSTATUS register address
-	MOV R2, #0x02				@ value to reset Timer2 IRQSTATUS register
-	STR R2, [R1]				@ write value to reset Timer2_IRQSTATUS register
+	LDR R1, =0x48044028			@ Timer4 IRQSTATUS register address
+	MOV R2, #0x02				@ value to reset Timer4 IRQSTATUS register
+	STR R2, [R1]				@ write value to reset Timer4_IRQSTATUS register
 @ Toggle the LED
 	LDR R2, [R0,#0x13C]			@ read value from GPIO1_DATAOUT
 	TST R2, #0x00200000			@ check bit 21
