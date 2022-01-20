@@ -1,7 +1,12 @@
 @ Design Project 3: LED/Timer interrupt program w/ button
-@ Description:
-@ Registers Used:
+@ Description: This program is able to toggle an LED on the BeagleBone Black on a 1 second delay.
+@			   The program produces an IRQ request to the processor either from the button being
+@			   pushed down or Timer4 going over 1 second. When the button is pressed, the LED0
+@			   will toggle on and off on a 1 second delay using Timer4. If the button is pressed
+@			   a second time, the LED0 toggling cycle will stop.
+@ Registers Used: R0 - R8, R14
 @ Anthony Bruno, December 2022
+@ Note: this program uses a modified startup_ARMCA8.s file with INT_DIRECTOR
 
 .text
 .global _start
@@ -40,6 +45,7 @@ _start:
 	LDR R3, [R2]				@ READ word from GPIO1_FALLINGDETECT
 	ORR R3, R3, R1				@ MODIFY the word from GPIO1_FALLINGDETECT
 	STR R3, [R2]				@ WRITE the modified word to GPIO1_FALLINGDETECT
+
 @ Enable GPIO1_29 POINTRPEND1 for interrupt
 	ADD R2, R0, #0x34			@ make the GPIO1_IRQSTATUS_SET_0 register address
 	STR R1, [R2]				@ enable GPIO1_29 request on POINTRPEND1
@@ -162,7 +168,7 @@ LEDON:
 
 LED:
 	NOP							@ For debugging and testing
-@ Turn off Timer2 interrupt request
+@ Turn off Timer4 interrupt request
 	LDR R1, =0x48044028			@ Timer4 IRQSTATUS register address
 	MOV R2, #0x02				@ value to reset Timer4 IRQSTATUS register
 	STR R2, [R1]				@ write value to reset Timer4_IRQSTATUS register

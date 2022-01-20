@@ -1,6 +1,12 @@
-@ Design Project 3: LED/Timer interrupt program w/ button
-@ Description:
-@ Registers Used:
+@ Design Project 3: LED Cycle & Timer
+@ Description: This program starts and LED sequence on a button interrupt. The LED sequence
+@ 			   operates on 1 second timer. When the button is pressed a second time, the LED
+@			   sequence stops and saves the LED it left off on while also turning the timer
+@			   off. When the button is pressed again, the LED dequence starts again but starts
+@			   on the LED it left off from previously. The Timer and button operate on an interrupt
+@			   basis and generate interrupts when either they overflow (timer) or are pushed (button).
+@			   The program uses the 4 USR LEDs on the BeagleBone Black.
+@ Registers Used: R0 - R8, R14
 @ Anthony Bruno, December 2022
 
 .text
