@@ -59,16 +59,16 @@ _start:
 	MOV R2, #0x10000000			@ value to unmask INTC INT #92 (Timer4)
 	STR R2, [R1,#0xC8]			@ Write value to INTC_MIR_CLEAR2 register
 
-@ Turn on Timer2 Clock
+@ Turn on Timer4 Clock
 	MOV R2, #0x02				@ Value to turn on DMTimer4 clock
 	LDR R1, =0x44E00088			@ CM_PER_TIMER4_CLKCTRL address
 	STR R2, [R1]				@ write turn on value to Timer4 clock control register
 
-@ Set the Timer2 Clock to the 32.768 KHz clock
+@ Set the Timer4 Clock to the 32.768 KHz clock
 	LDR R1, =0x44E00510			@ PRCMCLKSEL_TIMER4 register address
 	STR R2, [R1]				@ write value to select 32.768 KHz clock
 
-@ Initialize DMTimer2 (CFG register for reset, (re)-Load register, counter register)
+@ Initialize DMTimer4 (CFG register for reset, (re)-Load register, counter register)
 	LDR R1, =0x48044000			@ base address for DMTimer4
 	MOV R2, #0x01				@ reset value for timer4
 	STR R2, [R1,#0x10]			@ write reset value to Timer4 CFG register
